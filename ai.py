@@ -1,3 +1,11 @@
+from langchain.llms import LlamaCpp
+from langchain import PromptTemplate, LLMChain
+from langchain import PromptTemplate
+
+from langchain.callbacks.manager import CallbackManager
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+
+import logging
 import json
 import os
 import re
@@ -21,6 +29,12 @@ class ChatHistory:
 
     def get_as_list(self):
         return list(self.stack)
+
+    def get_as_string(self):
+        res = ""
+        for e in self.get_as_list():
+            res += res + e['role'] + ": " + e['content'] + "\n"
+        return res
 
 
 class ChatModel:
@@ -60,9 +74,8 @@ class ChatModel:
             return HugchatAPI(cookie_path=cookie_path)
 
         if self.model == "llama":
-            llama_api_key = "this_can_be_anything"
-            llama_api_base = os.getenv("LLAMA_API_BASE")
-            return OpenAIAPI(api_key=llama_api_key, api_base=llama_api_base)
+            model = os.getenv("MODEL")
+            return Llama_cpp(model=model)
 
 
 class BardAPI:
@@ -154,4 +167,45 @@ class OpenAIAPI:
 
         self.history.append(response.choices[0].message)
         response = response.choices[0].message.content
+        return response.strip()
+
+
+class Llama_cpp:
+    def __init__(self, model, max_history=5, max_tokens=1024):
+        self.callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
+        self.model = model
+        self.history = ChatHistory(max_history)
+        self.max_tokens = max_tokens
+        self.prompt_template = PromptTemplate.from_template("Répondez en français : {question}")
+        logging.info("Dans le constructeur de Llama_cpp")
+        self.llm = LlamaCpp(
+            #    model_path="/Users/mauceric/PRG/llama.cpp/models/7B/ggml-model-q4_0.bin",
+            model_path=model,
+            temperature=1,
+            max_tokens=500,
+            top_p=1,
+            callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]), 
+            verbose=True, # Verbose is required to pass to the callback manager
+        )
+        prompt = """
+        Vous parlez français et vous ne vous exprimez que dans cette langue. vous êtes concis dans vos réponses.
+        """
+        new_message = {"role": "user", "content": prompt}
+        self.history.append(new_message)
+        response = self.llm(prompt)
+        new_message = {"role": "IA", "content": response}
+        self.history.append(new_message)
+
+
+        
+
+    async def send(self, txt):
+        new_message = {"role": "user", "content": txt}
+        self.history.append(new_message)
+        messages = self.history.get_as_string()
+        
+        response = self.llm(messages)
+
+        new_message = {"role": "IA", "content": response.strip()}
+        self.history.append(new_message)
         return response.strip()

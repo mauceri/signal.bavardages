@@ -10,7 +10,7 @@ services:
       - ./signald:/signald
 
   bot:
-    image: ghcr.io/cycneuramus/signal-aichat
+    build: .
     container_name: signal-aichat-bot
     restart: unless-stopped
     env_file:

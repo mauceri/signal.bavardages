@@ -12,6 +12,7 @@ async def aichat(ctx):
     msg = ctx.message
     text = msg.get_body()
 
+    logging.info("££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££ Dans aichat")
     disabled_models = os.getenv("DISABLED_MODELS", "").lower()
     default_model = os.getenv("DEFAULT_MODEL", "").lower()
 
@@ -60,6 +61,7 @@ async def main():
         socket_path="/signald/signald.sock",
         logging_level=logging.INFO,
     ) as bot:
+        logging.info("Dans main")
         bot.register_handler("", aichat)
         await bot.start()
 
