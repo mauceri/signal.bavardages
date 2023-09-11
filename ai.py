@@ -1,6 +1,7 @@
-from langchain.llms import LlamaCpp
+OAOAfrom langchain.llms import LlamaCpp
 from langchain import PromptTemplate, LLMChain
-from langchain import PromptTemplate
+from langchain.prompts import ChatPromptTemplate
+
 
 from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
@@ -176,36 +177,39 @@ class Llama_cpp:
         self.model = model
         self.history = ChatHistory(max_history)
         self.max_tokens = max_tokens
-        self.prompt_template = PromptTemplate.from_template("Répondez en français : {question}")
         logging.info("Dans le constructeur de Llama_cpp")
         self.llm = LlamaCpp(
             #    model_path="/Users/mauceric/PRG/llama.cpp/models/7B/ggml-model-q4_0.bin",
             model_path=model,
             temperature=1,
             max_tokens=500,
+            n_ctx=2048,
             top_p=1,
             callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]), 
             verbose=True, # Verbose is required to pass to the callback manager
         )
-        prompt = """
-        Vous parlez français et vous ne vous exprimez que dans cette langue. vous êtes concis dans vos réponses.
-        """
-        new_message = {"role": "user", "content": prompt}
-        self.history.append(new_message)
-        response = self.llm(prompt)
-        new_message = {"role": "IA", "content": response}
-        self.history.append(new_message)
-
+        self.prompt = ChatPromptTemplate.from_template(
+            """
+            <s>[INST] <<SYS>>
+            Vous parlez français et vous ne vous exprimez que dans cette langue. vous êtes concis dans vos réponses.
+            <</SYS>>
+            {history} {message}
+            [/INST]
+            """
+        )
 
         
 
     async def send(self, txt):
-        new_message = {"role": "user", "content": txt}
+        history  = self.history.get_as_string()
+        message = self.prompt.format(history=history,message=txt)
+        new_message = {"role": "humain", "content": txt}
         self.history.append(new_message)
-        messages = self.history.get_as_string()
-        
-        response = self.llm(messages)
-
+        logging.info(message)
+        response = self.llm(message)
         new_message = {"role": "IA", "content": response.strip()}
         self.history.append(new_message)
-        return response.strip()
+
+        return new_message["content"]
+
+

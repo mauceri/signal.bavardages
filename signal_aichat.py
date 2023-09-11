@@ -13,6 +13,7 @@ async def aichat(ctx):
     text = msg.get_body()
 
     logging.info("££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££ Dans aichat")
+    logging.info(ctx)
     disabled_models = os.getenv("DISABLED_MODELS", "").lower()
     default_model = os.getenv("DEFAULT_MODEL", "").lower()
 

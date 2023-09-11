@@ -21,6 +21,7 @@ services:
 
   llama:
     image: ghcr.io/ghcr.io/abetlen/llama-cpp-python
+    mem_limit: 8g
     container_name: signal-aichat-llama
     restart: unless-stopped
     env_file:
