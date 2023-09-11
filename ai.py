@@ -1,4 +1,4 @@
-OAOAfrom langchain.llms import LlamaCpp
+from langchain.llms import LlamaCpp
 from langchain import PromptTemplate, LLMChain
 from langchain.prompts import ChatPromptTemplate
 
