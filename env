@@ -1,0 +1,24 @@
+# Signal phone number
+# E.164 format, i.e. +491512345678
+SIGNAL_PHONE_NUMBER=+33625692319
+
+# ChatGPT
+OPENAI_API_BASE=https://api.openai.com/v1
+OPENAI_API_KEY=sk-JpZEJm0dwg8S993bdsIMT3BlbkFJYpNP58xLpHTUPjhgkjhgkhg
+OPENAI_MODEL=gpt-3.5-turbo
+
+# Bard
+BARD_TOKEN=
+
+# Llama
+#CACHE=1
+#HOST=0.0.0.0
+#PORT=8000
+#LLAMA_API_BASE=http://signal-aichat-llama:8000/v1
+MODEL=/models/gguf-model-q4_0.bin
+
+# Default model options are bard, bing, gpt, hugchat, llama
+DEFAULT_MODEL=llama
+
+# Space-separated list of disabled models
+DISABLED_MODELS=bard bing hugchat # these require cookie authentication (see readme)
