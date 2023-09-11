@@ -193,7 +193,8 @@ class Llama_cpp:
             <s>[INST] <<SYS>>
             Vous parlez français et vous ne vous exprimez que dans cette langue. vous êtes concis dans vos réponses.
             <</SYS>>
-            {history} {message}
+            {history} 
+            humain: {message}
             [/INST]
             """
         )
